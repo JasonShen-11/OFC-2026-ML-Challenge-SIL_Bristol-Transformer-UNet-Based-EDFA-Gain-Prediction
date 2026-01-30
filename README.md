@@ -63,7 +63,7 @@ Before V17 achieved peak precision, the **Mega-Blend** (0.0940) served as our an
     *   **Performance**: While the raw MAE was higher than later versions, it provided the correct macroscopic "convex/concave" shape of the gain spectrum, which was crucial for filtering out unrealistic CNN predictions.
 *   **Architecture**: Deep Residual CNN with narrow kernels to capture local ripple effects.
 
-#### **V14: Category-Aware Specialization (奠基单体 0.098)**
+#### **V14: Category-Aware Specialization**
 *   **Innovation 1: Category-Conditional Inputs.**
     *   V14 was the first to use **One-Hot Encoding** for EDFA categories (`Aging`, `SHB`, `Unmeasured`) directly injected into the model's global projection. This allowed the UNet to switch weights internally based on the specific physical degradation mode.
 *   **Innovation 2: 8-Fold CV + SWA.**
