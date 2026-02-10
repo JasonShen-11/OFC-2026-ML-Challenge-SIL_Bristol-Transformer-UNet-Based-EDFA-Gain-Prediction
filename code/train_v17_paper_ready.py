@@ -25,22 +25,22 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Paths & Results Dir
 RES_DIR = "exp_v17_paper"
-PACK_DIR = "/home/ubuntu/Desktop/ofc-competition/OFC_Best_V18_Pack"
-os.makedirs(f"{RES_DIR}/models", exist_ok=True)
+PACK_DIR = "exp_v17_paper/models"
+os.makedirs(PACK_DIR, exist_ok=True)
 os.makedirs(f"{RES_DIR}/losses", exist_ok=True)
 
-TRAIN_FEATURES_CSV = "../Features/Train/train_features.csv"
-TRAIN_LABELS_CSV   = "../Features/Train/train_labels.csv"
-TEST_FEATURES_CSV  = "../Features/Test/test_features.csv"
-PSEUDO_CSV         = "../Features/Test/pseudo_v17_distilled.csv"
-COSMOS_FEATURES_CSV = "../Features/Train/COSMOS_features.csv"
-COSMOS_LABELS_CSV   = "../Features/Train/COSMOS_labels.csv"
+TRAIN_FEATURES_CSV = "data/train_features.csv"
+TRAIN_LABELS_CSV   = "data/train_labels.csv"
+TEST_FEATURES_CSV  = "data/test_features.csv"
+PSEUDO_CSV         = "data/pseudo_labels_v17.csv"
+COSMOS_FEATURES_CSV = "data/COSMOS_features.csv"
+COSMOS_LABELS_CSV   = "data/COSMOS_labels.csv"
 OUT_SUB_CSV        = f"{RES_DIR}/submission_v17_final.csv"
-PRETRAINED_PATH    = "v10_pretrained.pt"
+PRETRAINED_PATH    = "code/v10_pretrained.pt"
 
-TABLE1_PATH = "/home/ubuntu/Desktop/ofc-competition/table1_v17_oof_mae.csv"
-FIG1_DATA_PATH = "/home/ubuntu/Desktop/ofc-competition/fig1_violin_data_v17.csv"
-FIG2_DATA_PATH = "/home/ubuntu/Desktop/ofc-competition/fig2_shb_examples_v17.npz"
+TABLE1_PATH = f"{RES_DIR}/table1_v17_oof_mae.csv"
+FIG1_DATA_PATH = f"{RES_DIR}/fig1_violin_data_v17.csv"
+FIG2_DATA_PATH = f"{RES_DIR}/fig2_shb_examples_v17.npz"
 
 # Hyperparams
 BATCH_SIZE = 128; N_FOLDS = 5; EPOCHS_B1 = 50; EPOCHS_B2 = 120
@@ -196,7 +196,7 @@ def main():
                     pred_sum[i:i+512] += (p_base*0.5 + (p_tta1+p_tta2+p_tta3+p_tta4)*0.125).cpu().numpy() / (N_FOLDS * len(snapshots))
 
     # --- Paper Data Generation ---
-    tr_labels_real = pd.read_csv(TRAIN_LABELS_CSV).iloc[:, 1:].values
+    tr_labels_real = pd.read_csv(TRAIN_LABELS_CSV).values
     mask_real = xl_tr.astype(bool)
     diff = np.abs(tr_labels_real - oof_preds)
     mae_per_sample = [np.mean(diff[i, mask_real[i]]) for i in range(len(diff))]

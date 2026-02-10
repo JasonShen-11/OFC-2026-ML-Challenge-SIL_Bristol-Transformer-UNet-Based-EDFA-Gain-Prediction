@@ -20,6 +20,45 @@ This package contains the complete code, models, and data for the **V17.0 Ultima
   - `COSMOS_features.csv` / `COSMOS_labels.csv`: Large-scale Stage A base data.
   - `reference_results/`: Historical raw submissions for lineage verification.
 
+## ⚙️ Running the Training Pipeline (V17 Production)
+
+The V17 model uses a multi-stage training process involving Stage B datasets and distilled COSMOS data.
+
+### 1. Prerequisites
+- **Framework**: PyTorch (CUDA recommended)
+- **Environment**: Ensure dependencies from `requirements.txt` are installed.
+- **Data**: Ensure all CSV files are present in the `data/` directory.
+
+### 2. Execution Commands
+To start a full production training run (5-Fold CV + Snapshot Ensembling):
+
+**Standard Execution:**
+```bash
+python3 code/train_v17_paper_ready.py
+```
+
+**Background Execution (Recommended):**
+```bash
+nohup python3 -u code/train_v17_paper_ready.py > train_output.log 2>&1 &
+```
+
+### 3. Monitoring Progress
+- **Logs**: Monitor real-time training loss and fold progress:
+  ```bash
+  tail -f train_output.log
+  ```
+- **GPU Usage**: Check VRAM and utility:
+  ```bash
+  nvidia-smi
+  ```
+
+### 4. Output Structure
+All artifacts are saved to `exp_v17_paper/`:
+- `models/`: 15 snapshot checkpoints (`v17_foldX_snapY.pt`).
+- `submission_v17_final.csv`: Final ensembled predictions.
+- `figures/`: Training analysis and SHB example visualizations.
+- `tables/`: Summary MAE statistics by category.
+
 ## 🚀 How to Run Validation (Private Dataset)
 
 If you have a new private dataset (e.g., `private_features.csv`), use the optimized shell pipeline:

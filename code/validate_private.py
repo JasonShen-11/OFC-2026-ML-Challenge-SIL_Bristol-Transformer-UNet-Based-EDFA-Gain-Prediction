@@ -104,7 +104,7 @@ def run_v17_inference(feature_path, out_path, model_dir):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--features", default="../data/test_features.csv")
+    parser.add_argument("--features", default="data/test_features.csv")
     parser.add_argument("--output", default="v17_results.csv")
     parser.add_argument("--models", default=".")
     args = parser.parse_args()
