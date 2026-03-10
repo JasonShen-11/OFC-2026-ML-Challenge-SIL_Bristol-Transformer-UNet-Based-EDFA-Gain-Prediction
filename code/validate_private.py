@@ -52,8 +52,14 @@ def run_v17_inference(feature_path, out_path, model_dir):
     m_cols = [f"DUT_WSS_activated_channel_index_{i:02d}" for i in range(95)]
     p_cols = [f"EDFA_input_spectra_{i:02d}" for i in range(95)]
     
-    # Device Vocab
-    all_dk_list = ['preamp_5', 'booster_5', 'preamp_6', 'booster_6', 'preamp_3', 'booster_3', 'preamp_8', 'booster_8', 'preamp_7', 'booster_7', 'preamp_1', 'booster_1', 'preamp_2', 'booster_2', 'preamp_4', 'booster_4']
+    # --- V17 Hardcoded Normalization Stats (Aligned with Training) ---
+    m_trunk = np.array([18.0, -0.0017683338, -11.2927885, 7.317869], dtype=np.float32)
+    s_trunk = np.array([2.445172, 0.042014383, 8.613661, 7.9722786], dtype=np.float32)
+    m_stat  = np.array([24.44598, 0.257322, -21.032595, 0.11534409], dtype=np.float32)
+    s_stat  = np.array([28.92054, 0.30437034, 3.3155823, 0.15772969], dtype=np.float32)
+    
+    all_dk_list = ['booster_0', 'booster_1', 'preamp_0', 'preamp_1', 'preamp_6', 'preamp_7', 'preamp_2', 'preamp_3', 'preamp_4', 'preamp_5', 'booster_6', 'booster_7', 'booster_2', 'booster_3', 'booster_4', 'booster_5']
+
     k2id = {k:i for i,k in enumerate(all_dk_list)}
     dk = (df["EDFA_type"].str.lower() + "_" + df["edfa_index"].astype(str)).map(k2id).fillna(0).values.astype(int)
     
@@ -62,10 +68,6 @@ def run_v17_inference(feature_path, out_path, model_dir):
     
     xl = df[m_cols].values.astype(np.float32)
     xp = df[p_cols].values.astype(np.float32)
-    
-    # Normalizers
-    m_trunk = np.array([19.25, 0.05, -3.1, 16.2]); s_trunk = np.array([1.5, 0.8, 4.5, 5.2])
-    m_stat = np.array([47.5, 0.5, -15.0, 5.0]); s_stat = np.array([25.0, 0.25, 6.0, 3.0])
     
     n = np.sum(xl>0.5, 1, keepdims=True)+1e-8; mean = np.sum(xl*xp, 1, keepdims=True)/n
     st = np.concatenate([n, n/95.0, mean, np.sqrt(np.sum(xl*(xp-mean)**2,1,keepdims=True)/n+1e-8)], 1).astype(np.float32)
@@ -95,9 +97,11 @@ def run_v17_inference(feature_path, out_path, model_dir):
                     tta_acc += model(lp_t[i:i+512], pp_t[i:i+512], cp_t[i:i+512]+off, dp_t[i:i+512]) * 0.12
                 pred_sum[i:i+512] += tta_acc.cpu().numpy()
                 
-    final_pred = np.clip(pred_sum / len(models_found), -15, 25); final_pred[xl == 0] = -1
+    final_pred = np.clip(pred_sum / len(models_found), -15, 25)
     out_df = pd.DataFrame(final_pred, columns=[f"calculated_gain_spectra_{i:02d}" for i in range(95)])
-    if "ID" in df.columns: out_df.insert(0, "ID", df["ID"].values)
+    if "ID" in df.columns: 
+        out_df.insert(0, "ID", df["ID"].astype(int).values)
+    
     out_df.to_csv(out_path, index=False)
     print(f"✅ V17 Validation Finished -> {out_path}")
 
